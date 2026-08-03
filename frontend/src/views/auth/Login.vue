@@ -410,7 +410,8 @@ const registerFormRef = ref()
 
 // State management
 const loading = ref(false)
-const oidcLoading = ref(false)
+// 初始设为 true：onMounted 加载 OIDC 配置期间显示 loading，避免登录表单闪一下
+const oidcLoading = ref(true)
 const isRegisterMode = ref(false)
 const showLanguageMenu = ref(false)
 const oidcEnabled = ref(false)
@@ -801,10 +802,12 @@ onMounted(async () => {
     await loadAuthConfig()
     isRegisterMode.value = registrationEnabled.value
     loadOIDCConfig()
+    oidcLoading.value = false
     return
   }
 
   if (authStore.isLoggedIn) {
+    oidcLoading.value = false
     router.replace('/platform/knowledge-bases')
     return
   }
@@ -821,7 +824,13 @@ onMounted(async () => {
     // Auto-setup may be unavailable outside the native Lite shell.
   }
 
-  loadOIDCConfig()
+  // 加载 OIDC 配置，若已启用则自动跳转 OIDC 登录
+  await loadOIDCConfig()
+  if (oidcEnabled.value) {
+    await handleOIDCLogin()
+    // 跳转成功则页面已离开；失败则继续显示登录表单
+  }
+  oidcLoading.value = false
   loadAuthConfig()
 })
 </script>
