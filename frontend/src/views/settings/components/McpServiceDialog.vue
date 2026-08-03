@@ -383,6 +383,7 @@ import { ref, watch, computed, onBeforeUnmount } from 'vue'
 import { MessagePlugin } from 'tdesign-vue-next'
 import type { FormInstanceFunctions, FormRule } from 'tdesign-vue-next'
 import { useI18n } from 'vue-i18n'
+import { getApiBaseUrl } from '@/utils/api-base'
 import {
   createMCPService,
   updateMCPService,
@@ -393,7 +394,7 @@ import {
   getMCPOAuthAuthorizationStatus,
   getMCPOAuthStatus,
   revokeMCPOAuthToken,
-  MCP_OAUTH_CALLBACK_PATH,
+  getMCPOAuthCallbackPath,
   type MCPService,
   type McpCredentialField,
   type MCPOAuthTokenState,
@@ -664,11 +665,11 @@ async function startAuthorize(serviceId: string) {
   if (!serviceId) return
   oauthAuthorizing.value = true
   try {
-    const redirectUri = window.location.origin + MCP_OAUTH_CALLBACK_PATH
+    const redirectUri = window.location.origin + getMCPOAuthCallbackPath()
     // After the backend completes the exchange it bounces the popup here. The
     // app root is harmless; the popup is closed by the opener below once the
     // authorization status flips, so this page is only shown briefly.
-    const frontendRedirect = '/'
+    const frontendRedirect = getApiBaseUrl() + '/'
     const authorization = await getMCPOAuthAuthorizeURL(serviceId, {
       redirect_uri: redirectUri,
       frontend_redirect: frontendRedirect,

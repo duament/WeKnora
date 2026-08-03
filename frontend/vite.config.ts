@@ -68,6 +68,9 @@ function resolveVueOfficePptxEntry(): string {
 }
 
 export default defineConfig({
+  // 基础路径：通过 VITE_BASE_URL 环境变量设置（如 /weknora/），用于子路径反向代理部署
+  // 默认 / ，构建时也可通过 --base /weknora/ 覆盖
+  base: process.env.VITE_BASE_URL || '/',
   define: {
     __FRONTEND_VERSION__: JSON.stringify(FRONTEND_VERSION),
     __FRONTEND_COMMIT__: JSON.stringify(FRONTEND_COMMIT),

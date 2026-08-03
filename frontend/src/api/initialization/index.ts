@@ -1,6 +1,7 @@
 import { get, post, put } from '../../utils/request';
 import i18n from '@/i18n'
 import type { ModelCapabilities, ModelSpecOverride, ReasoningEffortLevel } from '../model'
+import { getApiBaseUrl } from '@/utils/api-base';
 
 const t = (key: string) => i18n.global.t(key)
 
@@ -480,7 +481,8 @@ export function testMultimodalFunction(testData: {
         }
 
         // 使用原生fetch因为需要发送FormData
-        fetch('/api/v1/initialization/multimodal/test', {
+        const apiUrl = getApiBaseUrl().replace(/\/+$/, '') + '/api/v1/initialization/multimodal/test';
+        fetch(apiUrl, {
             method: 'POST',
             headers,
             body: formData

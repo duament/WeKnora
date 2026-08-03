@@ -1254,11 +1254,19 @@ watch(shareLinkPopupVisible, (open) => {
 // invite_url into a copy-friendly absolute URL. The backend returns
 // "/register?token=…" when FRONTEND_BASE_URL is unset (the typical
 // case); the SPA is best-positioned to know its own origin.
+// When the backend does not prepend the base URL (e.g. /weknora/),
+// we prefix it here so invite links work under sub-path deployments.
 function absoluteInviteURL(raw: string): string {
   if (!raw) return ''
   if (/^https?:\/\//i.test(raw)) return raw
   const origin = (typeof window !== 'undefined' && window.location && window.location.origin) || ''
-  return raw.startsWith('/') ? origin + raw : origin + '/' + raw
+  let path = raw.startsWith('/') ? raw : '/' + raw
+  // If the path already starts with the base URL, don't double-prefix.
+  const baseUrl = (import.meta.env.BASE_URL || '/').replace(/\/+$/, '')
+  if (baseUrl && baseUrl !== '/' && !path.startsWith(baseUrl + '/') && path !== baseUrl) {
+    path = baseUrl + path
+  }
+  return origin + path
 }
 
 async function copyText(text: string) {

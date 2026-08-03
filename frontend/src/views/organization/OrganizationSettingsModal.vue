@@ -1209,7 +1209,8 @@ const isOwnerMember = (member: OrganizationMember): boolean => {
 
 const inviteLink = computed(() => {
   if (!inviteCode.value) return ''
-  return `${window.location.origin}/join?code=${inviteCode.value}`
+  const baseUrl = (import.meta.env.BASE_URL || '/').replace(/\/+$/, '')
+  return `${window.location.origin}${baseUrl}/join?code=${inviteCode.value}`
 })
 
 const inviteValidityOptions = computed(() => [

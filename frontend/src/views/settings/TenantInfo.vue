@@ -251,6 +251,7 @@ import {
 } from '@/api/tenant/members'
 import { useAuthStore } from '@/stores/auth'
 import { useI18n } from 'vue-i18n'
+import { getApiBaseUrl } from '@/utils/api-base'
 import { useRoleLabel, useHomeTenant } from '@/composables/useRoleLabel'
 import {
   navigateAfterTenantSwitch,
@@ -348,7 +349,7 @@ function confirmLeaveTenant() {
         if (resp.success) {
           MessagePlugin.success(t('tenantMember.leave.success'))
           authStore.logout()
-          window.location.href = '/login'
+          window.location.href = getApiBaseUrl() + '/login'
         } else {
           MessagePlugin.error(resp.message || t('tenantMember.errors.generic'))
         }
@@ -413,7 +414,7 @@ async function deleteCurrentTenant() {
         return
       }
       authStore.logout()
-      window.location.href = '/login'
+      window.location.href = getApiBaseUrl() + '/login'
     } else {
       MessagePlugin.error(resp.message || t('tenant.deleteDangerZone.failed'))
     }

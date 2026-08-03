@@ -1,4 +1,5 @@
 import { get, post, put, del } from '@/utils/request'
+import { getApiBaseUrl } from '@/utils/api-base'
 
 export interface MCPService {
   id: string
@@ -229,7 +230,10 @@ export async function deleteMCPCredentialField(
 
 // Path of the public backend OAuth callback (registered outside /mcp-services
 // to avoid a route conflict, and allow-listed for no-auth in the backend).
-export const MCP_OAUTH_CALLBACK_PATH = '/api/v1/mcp-oauth/callback'
+// Uses BASE_URL to support sub-path reverse proxy deployments (e.g. /weknora/).
+export function getMCPOAuthCallbackPath(): string {
+  return getApiBaseUrl() + '/api/v1/mcp-oauth/callback'
+}
 
 export interface MCPOAuthAuthorization {
   authorizationUrl: string

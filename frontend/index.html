@@ -45,14 +45,16 @@
 (function(){
   try {
     if (localStorage.getItem('weknora_lite_mode') !== 'true') return;
+    /* Vite injects the BASE_URL placeholder above (e.g. '/weknora/'); strip the trailing slash so a root deploy yields '' */
+    var base = '%BASE_URL%'.replace(/\/+$/, '');
     var saved = sessionStorage.getItem('weknora_lite_last_path');
     if (!saved || saved.indexOf('/platform/') !== 0 || saved.indexOf('/platform/organizations') === 0) return;
     var path = window.location.pathname;
-    if (path !== '/' && path !== '/platform' && path !== '/platform/knowledge-bases') return;
+    if (path !== base + '/' && path !== base + '/platform' && path !== base + '/platform/knowledge-bases') return;
     var target = saved.indexOf('#') >= 0 ? saved.slice(0, saved.indexOf('#')) : saved;
     if (!target) return;
     var current = window.location.pathname + window.location.search;
-    if (target !== current) window.history.replaceState(window.history.state, '', target);
+    if (base + target !== current) window.history.replaceState(window.history.state, '', base + target);
   } catch (e) {}
 })();
 </script>

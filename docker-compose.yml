@@ -1,4 +1,21 @@
 services:
+
+  # WeKnora embed proxy — strips X-Frame-Options for iframe support
+  # Access WeKnora via this container's port (default 8080) when embedding in an iframe.
+  frontend-embed:
+    image: artifact.enflame.cn/enflame_docker_images/ci/nginx:1.27.5
+    container_name: WeKnora-frontend-embed
+    ports:
+      - "${EMBED_PORT:-8040}:80"
+    volumes:
+      - ./docker/nginx-embed.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./frontend/dist-mod:/usr/share/nginx/html:ro
+    depends_on:
+      - frontend
+    networks:
+      - WeKnora-network
+    restart: unless-stopped
+
   frontend:
     image: wechatopenai/weknora-ui:${WEKNORA_VERSION:-latest}
     # Multi-stage Dockerfile builds dist inside the image (no host npm required).
