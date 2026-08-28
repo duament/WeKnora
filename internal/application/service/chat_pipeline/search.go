@@ -180,6 +180,13 @@ func getSearchResultFromHistory(chatManage *types.ChatManage) []*types.SearchRes
 	return nil
 }
 
+// DeduplicateSearchResults removes duplicate results by exact chunk ID and by
+// content signature. Exported for cross-workspace flows that combine results
+// from several per-tenant pipeline runs into a single context.
+func DeduplicateSearchResults(results []*types.SearchResult) []*types.SearchResult {
+	return removeDuplicateResults(results)
+}
+
 func removeDuplicateResults(results []*types.SearchResult) []*types.SearchResult {
 	seen := make(map[string]bool)
 	contentSig := make(map[string]*types.SearchResult) // sig -> first chunk

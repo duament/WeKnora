@@ -142,14 +142,14 @@ func (p *PluginIntoChatMessage) OnEvent(ctx context.Context,
 	if chatManage.FAQPriorityEnabled && len(faqResults) > 0 {
 		allResults = append(faqResults, docResults...)
 	}
-	docHeader := buildDocumentHeader(allResults)
-	if docHeader != "" {
-		contextsBuilder.WriteString(docHeader)
-		contextsBuilder.WriteString("\n")
-	}
 
 	// Build contexts string based on FAQ priority strategy
 	if chatManage.FAQPriorityEnabled && len(faqResults) > 0 {
+		docHeader := buildDocumentHeader(allResults)
+		if docHeader != "" {
+			contextsBuilder.WriteString(docHeader)
+			contextsBuilder.WriteString("\n")
+		}
 		contextsBuilder.WriteString("<source type=\"faq\" priority=\"high\">\n")
 		for i, result := range faqResults {
 			passage := getEnrichedPassageForChat(ctx, result)
@@ -172,14 +172,10 @@ func (p *PluginIntoChatMessage) OnEvent(ctx context.Context,
 			contextsBuilder.WriteString("</source>")
 		}
 	} else {
-		for i, result := range chatManage.MergeResult {
-			passage := getEnrichedPassageForChat(ctx, result)
+		for _, result := range chatManage.MergeResult {
 			contextOrder = append(contextOrder, result)
-			if i > 0 {
-				contextsBuilder.WriteString("\n")
-			}
-			contextsBuilder.WriteString(fmt.Sprintf("<context id=\"%d\">%s</context>", i+1, passage))
 		}
+		contextsBuilder.WriteString(RenderContexts(ctx, chatManage.MergeResult))
 	}
 
 	chatManage.RenderedContexts = contextsBuilder.String()
@@ -283,6 +279,27 @@ func (p *PluginIntoChatMessage) persistRenderedContent(ctx context.Context, chat
 			})
 		}
 	}()
+}
+
+// RenderContexts builds the RAG context block from merged search results: an
+// optional <documents> metadata header followed by numbered <context> entries
+// with image-enriched passages. This mirrors the context assembly performed by
+// the INTO_CHAT_MESSAGE stage so cross-workspace APIs can return processed
+// context without running a full chat pipeline.
+func RenderContexts(ctx context.Context, results []*types.SearchResult) string {
+	var b strings.Builder
+	if header := buildDocumentHeader(results); header != "" {
+		b.WriteString(header)
+		b.WriteString("\n")
+	}
+	for i, result := range results {
+		passage := getEnrichedPassageForChat(ctx, result)
+		if i > 0 {
+			b.WriteString("\n")
+		}
+		b.WriteString(fmt.Sprintf("<context id=\"%d\">%s</context>", i+1, passage))
+	}
+	return b.String()
 }
 
 // buildDocumentHeader generates a document metadata section listing each unique
