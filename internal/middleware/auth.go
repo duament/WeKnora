@@ -446,6 +446,12 @@ func isPlatformTenantOptionalAPI(path, method string) bool {
 	if path == "/api/v1/system/admin" || strings.HasPrefix(path, "/api/v1/system/admin/") {
 		return true
 	}
+	// /dolphin endpoints are cross-workspace admin control-plane APIs
+	// (target user selected by email, not by the caller's workspace), so
+	// platform API keys may call them without an X-Tenant-ID header.
+	if path == "/api/v1/dolphin" || strings.HasPrefix(path, "/api/v1/dolphin/") {
+		return true
+	}
 	if method == http.MethodGet && (path == "/api/v1/tenants/all" || path == "/api/v1/tenants/search") {
 		return true
 	}

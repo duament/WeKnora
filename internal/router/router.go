@@ -75,6 +75,7 @@ type RouterParams struct {
 	StorageBackendHandler        *handler.StorageBackendHandler
 	StorageBackendResolver       interfaces.StorageBackendResolver
 	ResourceCatalog              interfaces.ResourceCatalog
+	DolphinHandler               *handler.DolphinHandler
 	FAQHandler                   *handler.FAQHandler
 	TagHandler                   *handler.TagHandler
 	CustomAgentHandler           *handler.CustomAgentHandler
@@ -327,6 +328,7 @@ func NewRouter(params RouterParams) *gin.Engine {
 		RegisterWikiPageRoutes(v1, params.WikiPageHandler, rbacGuards)
 		RegisterMemoryRoutes(v1, params.MemoryHandler, rbacGuards)
 		RegisterChunkerDebugRoutes(v1, rbacGuards)
+		RegisterDolphinRoutes(v1, params.DolphinHandler, rbacGuards)
 
 		// Fail fast if any declared API-key policy points at a route
 		// template that does not actually exist (typo / path drift). A
