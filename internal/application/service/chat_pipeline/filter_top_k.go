@@ -77,6 +77,12 @@ func (p *PluginFilterTopK) OnEvent(ctx context.Context,
 	return next()
 }
 
+// SortSearchResults restores the global relevance order for results combined
+// from several per-tenant pipeline runs. Exported for cross-workspace flows.
+func SortSearchResults(results []*types.SearchResult) {
+	sortSearchResultsDeterministically(results)
+}
+
 // sortSearchResultsDeterministically restores the global relevance order after
 // merge stages group results through maps. Stable tie-breakers keep identical
 // requests reproducible before TopK truncation.

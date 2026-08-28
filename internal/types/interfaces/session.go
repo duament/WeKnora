@@ -73,6 +73,10 @@ type SessionService interface {
 		query string,
 		opts *types.KnowledgeSearchOptions,
 	) (*types.RetrievalResult, error)
+	// SearchKnowledgeContext performs retrieval as the given user across the
+	// workspaces listed in the request (used by the /dolphin cross-workspace
+	// API) and returns merged results plus the rendered RAG context block.
+	SearchKnowledgeContext(ctx context.Context, req *types.DolphinSearchRequest) (*types.DolphinSearchResult, error)
 	// AgentQA performs agent-based question answering with conversation history and streaming support.
 	AgentQA(ctx context.Context, req *types.QARequest, eventBus *event.EventBus) error
 }

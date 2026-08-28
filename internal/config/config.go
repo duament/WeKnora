@@ -34,12 +34,26 @@ type Config struct {
 	PromptTemplates *PromptTemplatesConfig `yaml:"prompt_templates" json:"prompt_templates"`
 	IM              *IMConfig              `yaml:"im"               json:"im"`
 	Agent           *AgentConfig           `yaml:"agent"            json:"agent"`
+	Dolphin         *DolphinConfig         `yaml:"dolphin"          json:"dolphin"`
 	// FrontendBaseURL is the externally-visible origin of the SPA, used
 	// to compose absolute share-link URLs. Empty falls back to a host-
 	// relative URL ("/register?token=…") which the SPA then resolves
 	// against window.location.origin — fine for typical single-origin
 	// deployments. Sourced from FRONTEND_BASE_URL env at startup.
 	FrontendBaseURL string `yaml:"frontend_base_url" json:"frontend_base_url"`
+}
+
+// DolphinConfig configures the cross-workspace Dolphin control-plane APIs
+// (/dolphin/knowledge-bases, /dolphin/search-context).
+type DolphinConfig struct {
+	// DefaultOrganization is the UUID of the organization that target users
+	// are auto-joined into before the Dolphin APIs run: when a target user's
+	// workspaces are not yet members of this organization, the user's home
+	// workspace is added automatically (best-effort, failures are only
+	// logged as warnings and never block the API). Empty disables auto-join.
+	// Sourced from the DOLPHIN_DEFAULT_ORGANIZATION env var at startup
+	// (env always wins over config.yaml).
+	DefaultOrganization string `yaml:"default_organization" json:"default_organization"`
 }
 
 // AgentConfig represents the global agent settings.
@@ -592,6 +606,7 @@ func LoadConfig() (*Config, error) {
 	applyAgentEnvOverrides(&cfg)
 	applyKnowledgeBaseEnvOverrides(&cfg)
 	applyNetworkEnvOverrides()
+	applyDolphinEnvOverrides(&cfg)
 	applyAuthAndTenantDefaults(&cfg)
 	applyAuditDefaults(&cfg)
 
@@ -798,6 +813,19 @@ func applyNetworkEnvOverrides() {
 		}
 	}
 	utils.SetOutboundDialTimeout(dialTimeout)
+}
+
+// applyDolphinEnvOverrides applies env-var overrides for the Dolphin
+// control-plane APIs. DOLPHIN_DEFAULT_ORGANIZATION holds the UUID of the
+// default organization that Dolphin target users are auto-joined into; when
+// unset (or empty) auto-join is disabled.
+func applyDolphinEnvOverrides(cfg *Config) {
+	if cfg.Dolphin == nil {
+		cfg.Dolphin = &DolphinConfig{}
+	}
+	if value := strings.TrimSpace(os.Getenv("DOLPHIN_DEFAULT_ORGANIZATION")); value != "" {
+		cfg.Dolphin.DefaultOrganization = value
+	}
 }
 
 func applyAgentEnvOverrides(cfg *Config) {

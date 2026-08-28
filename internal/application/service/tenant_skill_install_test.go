@@ -3327,6 +3327,12 @@ func (s *installSessionService) SearchKnowledge(
 	return &types.RetrievalResult{}, nil
 }
 
+func (s *installSessionService) SearchKnowledgeContext(
+	context.Context, *types.DolphinSearchRequest,
+) (*types.DolphinSearchResult, error) {
+	return nil, nil
+}
+
 func (s *installSessionService) AgentQA(context.Context, *types.QARequest, *event.EventBus) error {
 	return nil
 }

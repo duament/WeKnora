@@ -39,5 +39,13 @@ func RegisterDolphinRoutes(
 		g.apiKeyRoute(dolphinGroup, http.MethodGet, "/users/:email/knowledge-bases",
 			apiKeyPlatform(types.APIKeyCapabilitySystemTenantsRead, types.APIKeyCapabilitySystemTenantsManage),
 			dolphin.ListUserKnowledgeBases)
+		// Search as the target user: the caller understands the user's
+		// intent, then asks for processed RAG context from their KBs.
+		g.apiKeyRoute(dolphinGroup, http.MethodPost, "/search-context",
+			apiKeyPlatform(types.APIKeyCapabilitySystemTenantsRead, types.APIKeyCapabilitySystemTenantsManage),
+			dolphin.SearchKnowledgeContext)
+		g.apiKeyRoute(dolphinGroup, http.MethodPost, "/users/:email/search-context",
+			apiKeyPlatform(types.APIKeyCapabilitySystemTenantsRead, types.APIKeyCapabilitySystemTenantsManage),
+			dolphin.SearchKnowledgeContext)
 	}
 }
